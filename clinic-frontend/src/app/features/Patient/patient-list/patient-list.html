@@ -1,15 +1,65 @@
+<!-- patient-list.html -->
 <div class="patient-container">
   <div class="header-row">
     <h1 class="page-title">Patient List</h1>
   </div>
 
+  <!-- Search + Filter Bar -->
+  <div class="search-filter-row">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        placeholder="Search by name or mobile number"
+        [formControl]="searchControl"
+      />
+      @if (searchControl.value) {
+        <button matSuffix mat-icon-button aria-label="Clear" (click)="searchControl.setValue('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Gender</mat-label>
+      <mat-select [formControl]="genderFilter">
+        <mat-option value="">All</mat-option>
+        <mat-option value="male">Male</mat-option>
+        <mat-option value="female">Female</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Age Range</mat-label>
+      <mat-select [formControl]="ageFilter">
+        <mat-option value="">All</mat-option>
+        <mat-option value="0-18">0 – 18</mat-option>
+        <mat-option value="19-30">19 – 30</mat-option>
+        <mat-option value="31-50">31 – 50</mat-option>
+        <mat-option value="51+">51+</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    @if (hasActiveFilters) {
+      <button mat-stroked-button class="clear-filters-btn" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon> Clear Filters
+      </button>
+    }
+  </div>
+
+  <!-- Result count -->
+  <div class="result-info" *ngIf="(filteredPatients$ | async) as patients">
+    <span>{{ patients.length }} patient{{ patients.length !== 1 ? 's' : '' }} found</span>
+  </div>
+
+  <!-- Patient Cards Grid -->
   <div class="patient-grid">
-    @for (patient of patientsList$ | async; track $index) {
+    @for (patient of filteredPatients$ | async; track patient.patientId || patient.id) {
       <mat-card class="patient-card" appearance="outlined">
         <mat-card-content>
           <div class="card-header">
-            <div class="avatar-container" [ngClass]="patient.gender.toLowerCase().trim()">
-              <mat-icon>{{  patient.gender.toLowerCase().trim() === 'male' ? 'person' : 'face_3' }}</mat-icon>
+            <div class="avatar-container" [ngClass]="patient.gender?.toLowerCase()?.trim()">
+              <mat-icon>{{ patient.gender?.toLowerCase()?.trim() === 'male' ? 'person' : 'face_3' }}</mat-icon>
             </div>
             <h2 class="patient-name">{{ patient.name }}</h2>
           </div>
@@ -20,11 +70,23 @@
           </div>
 
           <div class="card-actions">
-            <button mat-stroked-button color="primary" class="action-btn" (click)="openPatientDetails(patient.patientId || patient.id)">View Details</button>
-            <button mat-stroked-button class="action-btn" [routerLink]="['/add-patient', patient.patientId || patient.id]">Edit</button>
+            <button mat-stroked-button color="primary" class="action-btn"
+              (click)="openPatientDetails(patient.patientId || patient.id)">
+              View Details
+            </button>
+            <button mat-stroked-button class="action-btn"
+              [routerLink]="['/add-patient', patient.patientId || patient.id]">
+              Edit
+            </button>
           </div>
         </mat-card-content>
       </mat-card>
+    } @empty {
+      <div class="empty-state">
+        <mat-icon>person_search</mat-icon>
+        <p>No patients match your search.</p>
+        <button mat-stroked-button (click)="clearFilters()">Clear Filters</button>
+      </div>
     }
   </div>
 </div>

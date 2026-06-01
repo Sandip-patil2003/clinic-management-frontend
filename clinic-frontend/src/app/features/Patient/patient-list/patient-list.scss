@@ -1,10 +1,13 @@
-// Custom Variables to match Figma Palette
+// patient-list.scss
+
+// Custom Variables
 $bg-color: #f8faff;
 $card-border: #e0e6ed;
 $text-main: #1a1c1e;
 $text-secondary: #44474e;
 $male-blue: #3b82f6;
 $female-pink: #ec4899;
+$primary: #1565c0;
 
 .patient-container {
   padding: 24px;
@@ -12,17 +15,89 @@ $female-pink: #ec4899;
   min-height: 100vh;
   font-family: 'Roboto', sans-serif;
 
+  // ── Header Row ──────────────────────────────────────────
   .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+
     .page-title {
       font-size: 24px;
       font-weight: 600;
       color: $text-main;
       margin: 0;
     }
+
+    .add-btn {
+      border-radius: 8px;
+      font-weight: 500;
+      text-transform: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  }
+
+  // ── Search + Filter Row ──────────────────────────────────
+  .search-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+
+    .search-field {
+      flex: 1 1 280px;
+      min-width: 200px;
+
+      // Remove default bottom whitespace from mat-form-field
+      .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
+    }
+
+    .filter-field {
+      flex: 0 1 160px;
+      min-width: 130px;
+
+      .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
+    }
+
+    .clear-filters-btn {
+      height: 56px;
+      border-radius: 8px;
+      font-weight: 500;
+      text-transform: none;
+      white-space: nowrap;
+      border-color: $card-border;
+      color: $text-secondary;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+
+  // ── Result Info ─────────────────────────────────────────
+  .result-info {
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: $text-secondary;
+    font-style: italic;
   }
 }
 
+// ── Patient Grid ───────────────────────────────────────────
 .patient-grid {
   display: grid;
   gap: 20px;
@@ -31,33 +106,34 @@ $female-pink: #ec4899;
 /* Desktop */
 @media (min-width: 1024px) {
   .patient-grid {
-    grid-template-columns: repeat(3, 1fr); /* ✅ 3 cards */
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 /* Tablet */
 @media (min-width: 768px) and (max-width: 1023px) {
   .patient-grid {
-    grid-template-columns: repeat(2, 1fr); /* ✅ 2 cards */
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 /* Mobile */
 @media (max-width: 767px) {
   .patient-grid {
-    grid-template-columns: 1fr; /* ✅ 1 card */
+    grid-template-columns: 1fr;
   }
 }
 
+// ── Patient Card ───────────────────────────────────────────
 .patient-card {
   border-radius: 12px !important;
   border: 1px solid $card-border !important;
   background: #ffffff;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07) !important;
   }
 
   mat-card-content {
@@ -77,7 +153,8 @@ $female-pink: #ec4899;
       display: flex;
       align-items: center;
       justify-content: center;
-      
+      flex-shrink: 0;
+
       mat-icon {
         font-size: 28px;
         width: 28px;
@@ -93,6 +170,12 @@ $female-pink: #ec4899;
         background-color: rgba($female-pink, 0.1);
         color: $female-pink;
       }
+
+      // Fallback for unknown / missing gender
+      &:not(.male):not(.female) {
+        background-color: rgba($text-secondary, 0.1);
+        color: $text-secondary;
+      }
     }
 
     .patient-name {
@@ -100,17 +183,18 @@ $female-pink: #ec4899;
       font-weight: 700;
       color: $text-main;
       margin: 0;
+      word-break: break-word;
     }
   }
 
   .info-group {
     margin-bottom: 24px;
-    
+
     p {
       margin: 4px 0;
       font-size: 14px;
       color: $text-main;
-      
+
       .label {
         color: $text-secondary;
         font-weight: 400;
@@ -130,5 +214,34 @@ $female-pink: #ec4899;
       height: 36px;
       border-color: $card-border;
     }
+  }
+}
+
+// ── Empty State ────────────────────────────────────────────
+.empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  gap: 16px;
+  color: $text-secondary;
+
+  mat-icon {
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+    opacity: 0.4;
+  }
+
+  p {
+    font-size: 16px;
+    margin: 0;
+  }
+
+  button {
+    border-radius: 8px;
+    text-transform: none;
   }
 }

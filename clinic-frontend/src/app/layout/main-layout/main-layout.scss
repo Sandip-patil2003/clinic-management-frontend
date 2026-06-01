@@ -12,29 +12,8 @@
   width: var(--sidebar-width);
   background-color: var(--primary-blue) !important;
   color: white;
-
   display: flex;
   flex-direction: column;
-
-  mat-nav-list a {
-    border-radius: 8px;
-    transition: background 0.2s ease;
-    color: white !important;
-  }
-
-  .mdc-list-item__primary-text,
-  .mat-mdc-list-item-unscoped-content {
-    color: white !important;
-  }
-
-  mat-icon {
-    color: white !important;
-    margin-right: 16px;
-  }
-
-  mat-nav-list a:hover {
-    background: rgb(170, 242, 255);
-  }
 }
 
 .sidebar mat-nav-list {
@@ -49,6 +28,13 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+
+  mat-icon {
+    color: white !important;
+  }
 }
 
 .user-profile {
@@ -56,14 +42,35 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.1);
   margin-top: auto;
-}
 
-.user-profile img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+
+    .name {
+      color: white;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .role {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+    }
+  }
+
+  mat-icon {
+    color: white !important;
+    margin-left: auto;
+  }
 }
 
 .main-content {
@@ -75,6 +82,7 @@
   padding: 12px 24px;
   display: flex;
   align-items: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .spacer {
@@ -83,5 +91,92 @@
 
 .add-patient-btn {
   border-radius: 8px;
+  margin-left: 8px;
 }
 
+// =============================================
+// ::ng-deep — pierce Angular Material MDC styles
+// =============================================
+::ng-deep .sidebar {
+
+  // MDC token overrides
+  --mdc-list-list-item-label-text-color: white;
+  --mdc-list-list-item-hover-label-text-color: white;
+  --mdc-list-list-item-focus-label-text-color: white;
+  --mdc-list-list-item-hover-state-layer-color: rgba(255, 255, 255, 0.1);
+
+  // List item alignment fix
+  .mat-mdc-list-item {
+    display: flex !important;
+    align-items: center !important;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    transition: background 0.2s ease;
+
+    .mdc-list-item__content {
+      display: flex !important;
+      align-items: center !important;
+      flex-direction: row !important;
+    }
+
+    .mdc-list-item__primary-text {
+      display: flex !important;
+      align-items: center !important;
+      color: white !important;
+      font-size: 17px;
+      font-weight: 500;
+    }
+  }
+
+  // Icon styles
+  .mat-mdc-list-item-icon {
+    color: white !important;
+    flex-shrink: 0;
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 26px !important;
+    line-height: 24px !important;
+    margin-right: 16px !important;
+  }
+
+  // Text color fallbacks
+  .mdc-list-item__primary-text {
+    color: white !important;
+  }
+
+  .mat-mdc-list-item-unscoped-content {
+    color: white !important;
+  }
+
+  .mdc-list-item {
+    color: white !important;
+  }
+
+  // Hover state
+  .mat-mdc-list-item:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  // Active / current route
+  .mat-mdc-list-item.active-link {
+    background: rgba(255, 255, 255, 0.25) !important;
+
+    .mdc-list-item__primary-text {
+      color: white !important;
+      font-weight: 600;
+    }
+
+    .mat-mdc-list-item-icon {
+      color: white !important;
+    }
+  }
+
+  // Angular Material activated state
+  .mdc-list-item--activated {
+    background: rgba(255, 255, 255, 0.2) !important;
+
+    .mdc-list-item__primary-text {
+      color: white !important;
+    }
+  }
+}

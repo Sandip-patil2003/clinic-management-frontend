@@ -21,6 +21,10 @@
                         <mat-form-field appearance="fill">
                             <input matInput placeholder="Enter full name" formControlName="name">
                         </mat-form-field>
+                        <div class="field-error" *ngIf="nameControl.invalid && nameControl.touched">
+                            <span *ngIf="nameControl.errors?.['required']">Full name is required.</span>
+                            <span *ngIf="nameControl.errors?.['hasNumbers']">Name must not contain numbers.</span>
+                        </div>
                     </div>
 
                     <!-- Gender -->
@@ -30,16 +34,30 @@
                             <mat-select placeholder="Select gender" formControlName="gender">
                                 <mat-option value="male">Male</mat-option>
                                 <mat-option value="female">Female</mat-option>
+                                <mat-option value="other">Other</mat-option>
                             </mat-select>
                         </mat-form-field>
+                        <div class="field-error" *ngIf="genderControl.invalid && genderControl.touched">
+                            <span *ngIf="genderControl.errors?.['required']">Gender is required.</span>
+                        </div>
                     </div>
 
                     <!-- Age -->
                     <div class="form-field">
                         <label>Age *</label>
                         <mat-form-field appearance="fill">
-                            <input matInput type="number" placeholder="Enter age" formControlName="age">
+                            <input
+                                matInput
+                                type="text"
+                                inputmode="numeric"
+                                placeholder="Enter age"
+                                formControlName="age"
+                                (keydown)="onlyDigitsKeydown($event)">
                         </mat-form-field>
+                        <div class="field-error" *ngIf="ageControl.invalid && ageControl.touched">
+                            <span *ngIf="ageControl.errors?.['required']">Age is required.</span>
+                            <span *ngIf="ageControl.errors?.['digitsOnly']">Age must contain digits only.</span>
+                        </div>
                     </div>
 
                     <!-- Mobile -->
@@ -54,19 +72,40 @@
                             </mat-form-field>
 
                             <mat-form-field appearance="fill" class="phone-number">
-                                <input matInput placeholder="10 digit number" formControlName="mobile">
+                                <input
+                                    matInput
+                                    type="text"
+                                    inputmode="numeric"
+                                    placeholder="10 digit number"
+                                    formControlName="mobile"
+                                    (keydown)="onlyDigitsKeydown($event)"
+                                    (paste)="onMobilePaste($event)"
+                                    (input)="onMobileInput($event)">
                             </mat-form-field>
 
+                        </div>
+                        <div class="field-error" *ngIf="mobileControl.invalid && mobileControl.touched">
+                            <span *ngIf="mobileControl.errors?.['required']">Mobile number is required.</span>
+                            <span *ngIf="mobileControl.errors?.['digitsOnly']">Mobile must contain digits only.</span>
+                            <span *ngIf="mobileControl.errors?.['minlength'] || mobileControl.errors?.['maxlength']">
+                                Mobile number must be exactly 10 digits.
+                            </span>
                         </div>
                     </div>
 
                     <!-- Blood Group -->
                     <div class="form-field">
-                        <label>Blood Group *</label>
+                        <label>Blood Group</label>
                         <mat-form-field appearance="fill">
                             <mat-select placeholder="Select blood group" formControlName="bloodGroup">
                                 <mat-option value="A+">A+</mat-option>
                                 <mat-option value="O+">O+</mat-option>
+                                <mat-option value="B+">B+</mat-option>
+                                <mat-option value="AB+">AB+</mat-option>
+                                <mat-option value="A-">A-</mat-option>
+                                <mat-option value="O-">O-</mat-option>
+                                <mat-option value="B-">B-</mat-option>
+                                <mat-option value="AB-">AB-</mat-option>
                             </mat-select>
                         </mat-form-field>
                     </div>
@@ -107,7 +146,12 @@
 
             <!-- Actions -->
             <div class="form-actions">
-                <button mat-flat-button color="primary" class="btn-submit" type="submit">
+                <button
+                    mat-flat-button
+                    color="primary"
+                    class="btn-submit"
+                    type="submit"
+                    [disabled]="patientForm.invalid">
                     {{ actionLabel }}
                 </button>
 

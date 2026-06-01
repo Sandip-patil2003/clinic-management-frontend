@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 // Material Imports
@@ -16,6 +16,22 @@ import { CreatePatient } from '../../../shared/model/Patient/create-patient.mode
 import { Router } from '@angular/router';
 import { PatientService } from '../../../core/services/patient-service';
 import { ToastrService } from 'ngx-toastr';
+
+
+// ── Custom Validators ──────────────────────────────────────────────────────────
+
+/** Rejects any value that contains a digit (0-9) */
+export const noNumbersValidator: ValidatorFn = (control: AbstractControl) => {
+  if (!control.value) return null;
+  return /\d/.test(control.value) ? { hasNumbers: true } : null;
+};
+
+/** Allows only digits (no letters, spaces, or symbols) */
+export const digitsOnlyValidator: ValidatorFn = (control: AbstractControl) => {
+  if (!control.value && control.value !== 0) return null;
+  const strVal = String(control.value);
+  return /^\d+$/.test(strVal) ? null : { digitsOnly: true };
+};
 
 
 @Component({
@@ -57,9 +73,7 @@ export class AddPatient {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
-      if (!id) {
-        return;
-      }
+      if (!id) return;
 
       this.patientId = id;
       this.isEditMode = true;
@@ -92,11 +106,26 @@ export class AddPatient {
 
   initForm() {
     this.patientForm = this.fb.group({
-      name: ['', Validators.required],
+      // Full name: required + no numbers allowed
+      name: ['', [Validators.required, noNumbersValidator]],
+
+      // Gender: required
       gender: ['', Validators.required],
-      age: [null, Validators.required],
-      mobile: ['', [Validators.required, Validators.minLength(10)]],
+
+      // Age: required + digits only
+      age: [null, [Validators.required, digitsOnlyValidator]],
+
+      // Mobile: required + digits only + exactly 10 digits
+      mobile: ['', [
+        Validators.required,
+        digitsOnlyValidator,
+        Validators.minLength(10),
+        Validators.maxLength(10)
+      ]],
+
+      // Blood group: optional
       bloodGroup: [''],
+
       concern: [''],
 
       address: this.fb.group({
@@ -106,6 +135,43 @@ export class AddPatient {
       })
     });
   }
+
+  // ── Convenience getters for template ──────────────────────────────────────
+
+  get nameControl() { return this.patientForm.get('name')!; }
+  get genderControl() { return this.patientForm.get('gender')!; }
+  get ageControl() { return this.patientForm.get('age')!; }
+  get mobileControl() { return this.patientForm.get('mobile')!; }
+
+  // ── Prevent non-digit keystrokes on numeric fields ─────────────────────────
+
+  onlyDigitsKeydown(event: KeyboardEvent): void {
+    const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'];
+    if (allowed.includes(event.key)) return;
+    if (!/^\d$/.test(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  /** Also block paste of non-digit content on mobile field */
+  onMobilePaste(event: ClipboardEvent): void {
+    const pasted = event.clipboardData?.getData('text') ?? '';
+    if (!/^\d+$/.test(pasted) || pasted.length > 10) {
+      event.preventDefault();
+    }
+  }
+
+  // ── Enforce max-length while typing (mobile = 10 digits) ──────────────────
+
+  onMobileInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.value.length > 10) {
+      input.value = input.value.slice(0, 10);
+      this.mobileControl.setValue(input.value, { emitEvent: false });
+    }
+  }
+
+  // ── Submit ─────────────────────────────────────────────────────────────────
 
   onSubmit() {
     if (this.patientForm.invalid) return;
@@ -126,12 +192,10 @@ export class AddPatient {
           }
         : null
     } as CreatePatient;
-    console.log('Payload:', request);
 
     if (this.patientId) {
       this.patientService.updatePatient(this.patientId, request).subscribe({
         next: (res) => {
-          console.log('Update Success:', res);
           this.toastr.success('Patient updated successfully');
           this.router.navigate(['/patients-list']);
         },
@@ -145,7 +209,6 @@ export class AddPatient {
 
     this.patientService.addPatient(request).subscribe({
       next: (res) => {
-        console.log('Success:', res);
         this.toastr.success('Patient added successfully');
         this.router.navigate(['/patients-list']);
       },
