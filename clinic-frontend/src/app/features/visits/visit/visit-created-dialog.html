@@ -1,0 +1,42 @@
+<div class="visit-created-dialog">
+  <div class="dialog-card mat-elevation-z24">
+    <button mat-icon-button class="close-button" aria-label="Close" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <div class="icon-wrapper">
+      <mat-icon>check_circle</mat-icon>
+    </div>
+
+    <h2>Visit Successfully Created</h2>
+    <p>Visit has been successfully created for <strong>{{ data.patientName }}</strong></p>
+
+    <div class="details-panel">
+      <h3>Visit Details</h3>
+      <div class="detail-row">
+        <span class="detail-label">Visit ID</span>
+        <span class="detail-value">{{ data.visitId }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Visit Date</span>
+        <span class="detail-value">{{ data.visitDate | date:'dd MMM y, h:mm a' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Complaint</span>
+        <span class="detail-value">{{ data.complaint }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Notes</span>
+        <span class="detail-value">{{ data.notes || '-' }}</span>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button mat-stroked-button type="button" (click)="close()">Close</button>
+      <button mat-flat-button color="primary" type="button" (click)="addPrescription()">
+        <mat-icon>add</mat-icon>
+        Add Prescription
+      </button>
+    </div>
+  </div>
+</div>

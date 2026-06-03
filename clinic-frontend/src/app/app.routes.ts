@@ -49,6 +49,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/visits/visit/visit')
             .then(m => m.Visit)
+      },
+      {
+        path: 'prescriptions',
+        loadComponent: () =>
+          import('./features/prescriptions/create-prescription/create-prescription')
+            .then(m => m.CreatePrescription)
       }
     ]
   },

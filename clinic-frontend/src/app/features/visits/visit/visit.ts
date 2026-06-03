@@ -4,6 +4,7 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -14,8 +15,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { BehaviorSubject, debounceTime, distinctUntilChanged, map, startWith, tap } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 import { Patient, PatientService } from '../../../core/services/patient-service';
 import { CreateVisit, VisitRecord, VisitService } from '../../../core/services/visit-service';
+import { VisitCreatedDialog } from './visit-created-dialog';
 
 @Component({
   selector: 'app-visit',
@@ -26,6 +29,7 @@ import { CreateVisit, VisitRecord, VisitService } from '../../../core/services/v
     MatAutocompleteModule,
     MatButtonModule,
     MatCardModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -68,6 +72,8 @@ export class Visit implements OnInit {
   private patientService = inject(PatientService);
   private visitService = inject(VisitService);
   private toastr = inject(ToastrService);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
 
   ngOnInit(): void {
     this.initForm();
@@ -268,15 +274,57 @@ export class Visit implements OnInit {
       notes: this.visitForm.value.notes
     };
 
+    const patientName = this.selectedPatient.name;
+
     this.visitService.addVisit(request).subscribe({
-      next: () => {
+      next: response => {
+        const payload = response.visitId;
+        const visit: VisitRecord = {
+          id: payload.visitId,
+          patientId: payload.patientGuid,
+          complaint: payload.complaint,
+          notes: payload.notes,
+          visitDate: payload.visitDate
+        };
+
         this.clearForm();
         this.loadVisits();
-        this.toastr.success('Visit saved successfully', 'Success');
+        this.openSuccessDialog(visit, patientName);
       },
       error: err => {
         console.error('Error saving visit', err);
         this.toastr.error('Unable to save visit. Please try again.', 'Error');
+      }
+    });
+  }
+
+  openSuccessDialog(visit: VisitRecord, patientName: string): void {
+    const resolvedPatientName = patientName || visit.patientName || 'Patient';
+    const visitDate = visit.visitDate ?? new Date().toISOString();
+
+    const dialogRef = this.dialog.open(VisitCreatedDialog, {
+      width: '560px',
+      data: {
+        visitId: visit.id ?? 'N/A',
+        patientName: resolvedPatientName,
+        patientId: visit.patientId,
+        visitDate,
+        complaint: visit.complaint,
+        notes: visit.notes
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'addPrescription') {
+        this.router.navigate(['/prescriptions'], {
+          queryParams: {
+            visitId: visit.id,
+            patientId: visit.patientId,
+            patientName,
+            visitDate,
+            complaint: visit.complaint
+          }
+        });
       }
     });
   }

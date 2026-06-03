@@ -13,6 +13,16 @@ export interface VisitRecord {
   visitDate?: string;
 }
 
+export interface VisitCreateResponse {
+  visitId: {
+    visitId: string;
+    patientGuid: string;
+    visitDate: string;
+    complaint: string;
+    notes: string;
+  };
+}
+
 export interface CreateVisit {
   patientId: string;
   complaint: string;
@@ -30,8 +40,8 @@ export class VisitService {
     return this.http.get<VisitRecord[]>(`${this.baseUrl}/visits`);
   }
 
-  addVisit(request: CreateVisit): Observable<VisitRecord> {
-    return this.http.post<VisitRecord>(`${this.baseUrl}/visits`, request);
+  addVisit(request: CreateVisit): Observable<VisitCreateResponse> {
+    return this.http.post<VisitCreateResponse>(`${this.baseUrl}/visits`, request);
   }
 
   deleteVisit(id: string): Observable<void> {

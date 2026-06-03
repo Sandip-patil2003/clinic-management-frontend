@@ -1,0 +1,150 @@
+<div class="prescription-page" [formGroup]="prescriptionForm">
+  <div class="page-header">
+    <div>
+      <p class="breadcrumb">Visits / Create Prescription</p>
+      <h1>Create Prescription</h1>
+      <p class="subtitle">Add medicines and therapies for the patient</p>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button color="primary" type="button" (click)="cancel()">Cancel</button>
+      <button mat-flat-button color="primary" type="button" [disabled]="!prescriptionForm.valid || !visitReference.visitId" (click)="savePrescription()">Save Prescription</button>
+    </div>
+  </div>
+
+  <section class="section-card visit-reference mat-elevation-z2">
+    <h2>Visit Reference</h2>
+    <div class="reference-grid">
+      <div>
+        <span class="label">Patient Name</span>
+        <p>{{ visitReference.patientName || '-' }}</p>
+      </div>
+      <div>
+        <span class="label">Visit ID</span>
+        <p>{{ visitReference.visitId || '-' }}</p>
+      </div>
+      <div>
+        <span class="label">Visit Date</span>
+        <p>{{ visitReference.visitDate ? (visitReference.visitDate | date:'dd MMM y, h:mm a') : '-' }}</p>
+      </div>
+      <div>
+        <span class="label">Complaint</span>
+        <p>{{ visitReference.complaint || '-' }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-card prescription-details mat-elevation-z2">
+    <h2>Prescription Details</h2>
+    <div class="details-grid">
+      <mat-form-field appearance="outline" class="notes-field">
+        <mat-label>Notes (Optional)</mat-label>
+        <textarea matInput formControlName="notes" rows="4" placeholder="Add any notes for this prescription..."></textarea>
+        <span class="helper-text">0/500</span>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="followup-field">
+        <mat-label>Next Follow-Up Date (Optional)</mat-label>
+        <input matInput formControlName="nextFollowUpDate" [matDatepicker]="followUpPicker" [min]="minFollowUpDate" placeholder="Select date" />
+        <mat-datepicker-toggle matSuffix [for]="followUpPicker"></mat-datepicker-toggle>
+        <mat-datepicker #followUpPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+  </section>
+
+  <section class="section-card medicines-card mat-elevation-z2">
+    <div class="section-heading">
+      <h2>Medicines</h2>
+      <span class="optional-label">*</span>
+    </div>
+
+    <div formArrayName="medicines" class="medicine-list">
+      <div class="medicine-row" *ngFor="let medicine of medicines.controls; let i = index" [formGroupName]="i">
+        <mat-form-field appearance="outline" class="medicine-field">
+          <mat-label>Medicine Name *</mat-label>
+          <input type="text" matInput formControlName="medicineName" [matAutocomplete]="medicineAuto" placeholder="Select medicine" />
+          <mat-autocomplete #medicineAuto="matAutocomplete" [displayWith]="displayMedicineName" (optionSelected)="onMedicineSelected($event, i)">
+            <mat-option *ngFor="let option of filteredMedicines[i] | async" [value]="option">
+              {{ option.name }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="dosage-field">
+          <mat-label>Dosage *</mat-label>
+          <input matInput formControlName="dosage" placeholder="e.g., 1 Tablet" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="frequency-field">
+          <mat-label>Frequency *</mat-label>
+          <mat-select formControlName="frequency" placeholder="Select frequency">
+            <mat-option value="Once a day">Once a day</mat-option>
+            <mat-option value="Twice a day">Twice a day</mat-option>
+            <mat-option value="Thrice a day">Thrice a day</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="duration-field">
+          <mat-label>Duration (Days) *</mat-label>
+          <input matInput type="text" formControlName="durationDays" placeholder="e.g., 7" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="instructions-field">
+          <mat-label>Instructions (Optional)</mat-label>
+          <input matInput formControlName="instructions" placeholder="e.g., After Food" />
+        </mat-form-field>
+
+        <button mat-icon-button color="warn" class="remove-button" type="button" aria-label="Remove medicine" (click)="removeMedicine(i)" [disabled]="medicines.length === 1">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <button mat-button color="primary" type="button" class="add-row-button" (click)="addMedicine()">
+      <mat-icon>add</mat-icon>
+      Add Medicine
+    </button>
+  </section>
+
+  <section class="section-card therapies-card mat-elevation-z2">
+    <div class="section-heading">
+      <h2>Therapies (Optional)</h2>
+    </div>
+
+    <div formArrayName="therapies" class="therapy-list">
+      <div class="therapy-row" *ngFor="let therapy of therapies.controls; let i = index" [formGroupName]="i">
+        <mat-form-field appearance="outline" class="therapy-field">
+          <mat-label>Therapy Name</mat-label>
+          <input type="text" matInput formControlName="therapyName" [matAutocomplete]="therapyAuto" placeholder="Select therapy" />
+          <mat-autocomplete #therapyAuto="matAutocomplete" [displayWith]="displayTherapyName" (optionSelected)="onTherapySelected($event, i)">
+            <mat-option *ngFor="let option of filteredTherapies[i] | async" [value]="option">
+              {{ option.name }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="sessions-field">
+          <mat-label>Sessions</mat-label>
+          <input matInput type="number" formControlName="sessions" placeholder="e.g., 10" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="therapy-notes-field">
+          <mat-label>Notes (Optional)</mat-label>
+          <input matInput formControlName="notes" placeholder="e.g., Weekly once" />
+        </mat-form-field>
+
+        <button mat-icon-button color="warn" class="remove-button" type="button" aria-label="Remove therapy" (click)="removeTherapy(i)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <button mat-button color="primary" type="button" class="add-row-button" (click)="addTherapy()">
+      <mat-icon>add</mat-icon>
+      Add Therapy
+    </button>
+  </section>
+
+  <div class="footer-note">
+    <span><strong>All fields marked with *</strong> are required</span>
+  </div>
+</div>

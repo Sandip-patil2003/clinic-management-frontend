@@ -1,0 +1,149 @@
+.prescription-page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.breadcrumb {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  color: #4b5563;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.section-card {
+  border-radius: 20px;
+  background: #ffffff;
+  padding: 24px;
+}
+
+.visit-reference .reference-grid,
+.details-grid,
+.medicine-row,
+.therapy-row {
+  display: grid;
+  gap: 18px;
+}
+
+.visit-reference .reference-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.reference-grid div,
+.detail-grid div {
+  min-width: 0;
+}
+
+.label {
+  display: block;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.reference-grid p,
+.detail-value {
+  margin: 0;
+  font-size: 15px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.details-grid {
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+}
+
+.notes-field {
+  width: 100%;
+}
+
+.followup-field {
+  width: 100%;
+}
+
+.medicines-card .section-heading,
+.therapies-card .section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.medicine-list,
+.therapy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.medicine-row,
+.therapy-row {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr 1fr 1fr 1.3fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.therapy-row {
+  grid-template-columns: 1.6fr 1fr 1.6fr auto;
+}
+
+.medicine-field,
+.dosage-field,
+.frequency-field,
+.duration-field,
+.instructions-field,
+.therapy-field,
+.sessions-field,
+.therapy-notes-field {
+  width: 100%;
+}
+
+.add-row-button {
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+.remove-button {
+  margin-top: 8px;
+}
+
+.footer-note {
+  color: #4b5563;
+  font-size: 13px;
+}
+
+@media (max-width: 1120px) {
+  .visit-reference .reference-grid,
+  .details-grid,
+  .medicine-row,
+  .therapy-row {
+    grid-template-columns: 1fr;
+  }
+}
